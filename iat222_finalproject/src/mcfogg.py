@@ -1,8 +1,14 @@
 import xml.etree.ElementTree as ET
 from PIL import Image
+from itertools import product
 
 __PIXEL_DIM__ = 15
 __IMAGE__ = "../static/McFogg.png"
+__DOM__ = "newMcfogg.xml"
+
+with open(__DOM__, "w") as newmMcfoggDom:
+    newmMcfoggDom.write("<div class='top'></div>")
+
 
 class McFogg:
     # memeMap is a tuple for location and source for image
@@ -12,6 +18,10 @@ class McFogg:
         # take image and convert it to color array
         # populate active array with null values equivalent to being inactive
         self.image = Image.open(imgSrc)
+        # self.image = self.image.resize((int(self.image.width/__PIXEL_DIM__), int(self.image.height/__PIXEL_DIM__)))
+        # pixel array
+        pixelArray = self.image.load()
+        self.pixelColors = [pixelArray[x, y] for x, y in product(range(0, self.image.width, 15), range(0, self.image.height, 15))]
 
         # generate color array
         self.color = list(self.image.getdata())
@@ -21,7 +31,8 @@ class McFogg:
         self.filled = [False] * (self.image.width + self.image.height)
 
         # tree root element (returns element)
-        self.root = ET.fromstring("<div></div>")
+        self.tree = ET.parse(__DOM__)
+        self.root = self.tree.getroot()
 
 
     def getRoot(self):
@@ -100,12 +111,13 @@ class McFogg:
         row = ET.Element.SubElement(myCol, "div", {"width": __PIXEL_DIM__, "length": __PIXEL_DIM__})
         """
 
+        i = 0
         for c in range(0, self.image.height, __PIXEL_DIM__):
-            style = 'width:'+str(__PIXEL_DIM__)+"px"+';'+'height: '+str(__PIXEL_DIM__)+"px"+';'+'background-color:'+data["background-color"]+';'+'visibility:'+data["visibility"]+';'
+            style = 'width:'+str(__PIXEL_DIM__)+"px"+';'+'height: '+str(self.image.height)+"px"+';'+'float:'+'left'+';'+'z-index:-1'+';'
+            newCol = ET.Element("div", {"class": "col", "style": style})
+            newCol.text = " "
+            self.tree.getroot().append(newCol)
 
-            newCol = ET.Element("div", {"style": style})
-            self.root.append(newCol)
-            """
             for r in range(0, self.image.width, __PIXEL_DIM__):
 
                 # we should be able to replicate the pixelated image like this, but enlarged
@@ -117,19 +129,20 @@ class McFogg:
                     # Row -> div styles/class?
                     # Column -> div styles/class?
 
-                # TODO: True or false by default?
-                self.filled[c+r] = True
-                rgba = self.colorEncode(self.color[c+r])
-                data = { "background-color": rgba, "link":"", "image":"", "visibility": "hidden"}
-                if self.filled[c+r] == True:
-                    data["visibility"] = "visible"
+                # TODO: "Check-if-filled" system
+                rgba = self.colorEncode(self.pixelColors[i])
+                data = { "background-color": rgba, "link":"", "image":"", "visibility": "visible"}
 
-                style = 'width:'+str(__PIXEL_DIM__)+"px"+';'+'height: '+str(__PIXEL_DIM__)+"px"+';'+'background-color:'+data["background-color"]+';'+'visibility:'+data["visibility"]+';'
+                style = 'width:'+str(__PIXEL_DIM__)+"px"+';'+'height: '+str(__PIXEL_DIM__)+"px"+';'+'background-color:'+data["background-color"]+';'+'visibility:'+data["visibility"]+';'+'float:'+'down'+';'
 
-                newRow = ET.SubElement(newCol, "div", {"style": style})
+                newRow = ET.SubElement(newCol, "div", {"class": "row", "style": style})
+                newRow.text = " "
                 # newLink = ET.SubElement(newRow, "a", {"href": data["link"]})
                 # newImg = ET.SubElement(newLink, "img", {"src": data["image"]})
-            """
+
+                i += 1
+
+        print("iteration count", i)
         # columns are essentially invisible, they must be filled up with rows
         # TODO: does this upset the counting? not if we just handle rows directly? figure this out
           # in the end it's only row elements that get colors, not columns.
@@ -147,7 +160,10 @@ class McFogg:
 
 mf = McFogg(__IMAGE__)
 mf.gridifyImage()
-print(mf.getDomAsString())
+#print(mf.getDomAsString())
 file = open("mcfogg.html", "w")
-file.write("<html>"+"<body>"+mf.getDomAsString()+"</body>"+"</html>")
+file.write("<html>"+mf.getDomAsString()+"</html>")
 file.close()
+#print(mf.pixelColors)
+print(len(mf.color), len(mf.pixelColors))
+print(len(mf.color) / len(mf.pixelColors), ((1005**2) / (15**2)))
