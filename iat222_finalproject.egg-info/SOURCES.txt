@@ -1,0 +1,10 @@
+MANIFEST.in
+iat222_finalproject/__init__.py
+iat222_finalproject/iat222_finalproject.py
+iat222_finalproject/schema.sql
+iat222_finalproject.egg-info/PKG-INFO
+iat222_finalproject.egg-info/SOURCES.txt
+iat222_finalproject.egg-info/dependency_links.txt
+iat222_finalproject.egg-info/requires.txt
+iat222_finalproject.egg-info/top_level.txt
+iat222_finalproject/static/McFogg.png
