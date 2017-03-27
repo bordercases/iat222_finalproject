@@ -137,8 +137,8 @@ class McFogg:
 
                 newRow = ET.SubElement(newCol, "div", {"class": "row", "style": style})
                 newRow.text = " "
-                # newLink = ET.SubElement(newRow, "a", {"href": data["link"]})
-                # newImg = ET.SubElement(newLink, "img", {"src": data["image"]})
+                newLink = ET.SubElement(newRow, "a", {"href": data["link"]})
+                newImg = ET.SubElement(newLink, "img", {"src": data["image"]})
 
                 i += 1
 

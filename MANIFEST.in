@@ -1,0 +1,3 @@
+graft iat222_finalproject/templates
+graft iat222_finalproject/static
+include iat222_finalproject/schema.sql
